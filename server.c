@@ -1,14 +1,19 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h> // Unix standard functions (e.g., close)
-#include <arpa/inet.h> // Networking functions for IPv4 (e.g., socket, bind, etc.)
+// Socket Server
+// By: Raul Izahi Lopez, Seagull Concepts, LLC.
+// Creation: Oct 6, 2024
+// Documentation from: UNIX Network Programming, by W. Richard Stevens and iOS's man
+
+#include <stdio.h>		// Standard I/O
+#include <stdlib.h>		// C Standard library
+#include <string.h>		// String management
+#include <unistd.h> 	// Unix standard functions
+#include <arpa/inet.h> 	// Networking functions
 
 #define PORT 9999
 
-// Declare functions
-int initialize_server(int port);
-void server_loop(int server_fd);
+// function prototypes
+int init_server(int port);
+void server_loop(int socket_i);
 void process_request(int socket, char *);
 
 int main() {
@@ -20,40 +25,47 @@ int main() {
 //    setbuf(stdout, NULL);
 //    setbuf(stderr, NULL);
 
-    // initialize the server and get the server file descriptor
-    int server_fd = initialize_server(PORT);
-    if (server_fd < 0) {
+    // init the server and get the server file descriptor
+    int socket_i = init_server(PORT);
+    if (socket_i < 0) {
         fprintf(stderr, "Server initialization failed.\n");
         exit(EXIT_FAILURE);
     }
 #ifdef DEBUG
-	printf("initialized receiver\n");
+	printf("initd receiver\n");
 #endif
 
     // Enter the server loop to listen for connections and process requests
-    server_loop(server_fd);
+    server_loop(socket_i);
 
     // Close the server socket when done (although this will never be reached in the infinite loop)
-    close(server_fd);
+    close(socket_i);
     return 0;
 }
 
-// Function to initialize the server
-int initialize_server(int port) {
-    int server_fd;
+// Function to init the server
+int init_server(int port) {
+    int socket_id;				// socket descriptor : int socket(int domain, int type, int protocol);
+	int socket_domain_i;
+	int socket_type_i;
+	int socket_protocol_i;
     struct sockaddr_in address;
 
+	socket_domain_i = AF_INET;
+	socket_type_i 	= SOCK_STREAM; 	// sequenced, reliable, two-way connection based byte streams. 
+									// full-duplex byte streams, similar to pipes.
+
     // Create a socket: AF_INET = IPv4, SOCK_STREAM = TCP, 0 = Default protocol
-    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+    if ((socket_i = socket(socket_domain_i, socket_type_i, 0)) == 0) {
         perror("socket failed");
         return -1;
     }
 
     // Set SO_REUSEADDR to reuse the port
 	int opt=1;
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1) {
+    if (setsockopt(socket_i, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1) {
         perror("setsockopt failed");
-        close(server_fd);
+        close(socket_i);
         exit(EXIT_FAILURE);
     }
 
@@ -63,21 +75,21 @@ int initialize_server(int port) {
     address.sin_port = htons(port); // Convert the port number to network byte order
 
     // Bind the socket to the specified IP address and port
-    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
+    if (bind(socket_i, (struct sockaddr *)&address, sizeof(address)) < 0) {
         perror("bind failed");
         return -1;
     }
 
     // Put the server socket in a passive mode to listen for incoming connections
-    if (listen(server_fd, 3) < 0) {
+    if (listen(socket_i, 3) < 0) {
         perror("listen");
         return -1;
     }
 
-    return server_fd;
+    return socket_i;
 }
 
-void server_loop(int server_fd) {
+void server_loop(int socket_i) {
     int new_socket;
     struct sockaddr_in address;
     int addrlen = sizeof(address);
@@ -91,7 +103,7 @@ void server_loop(int server_fd) {
 	strcpy(response_buffer,"");
     while (strcmp(response_buffer,"done")!=0) {
         // Accept a new connection
-        if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) {
+        if ((new_socket = accept(socket_i, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) {
             perror("accept failed");
             continue;
         }
