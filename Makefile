@@ -1,11 +1,11 @@
-all : rec send
-debug: rec_debug send_debug
+all : server send
+debug: server_debug send_debug
 clean:
-	rm ./rec ./send
-rec : rec.c
-	gcc -O2 -Wall -Wextra -std=c99 -Wold-style-definition -Wstrict-prototypes -Wmissing-prototypes -pedantic -o rec rec.c
-rec_debug : rec.c
-	gcc -DDEBUG -Wall -Wextra -std=c99 -Wold-style-definition -Wstrict-prototypes -Wmissing-prototypes -pedantic -o rec rec.c
+	rm ./server ./send
+server : server.c
+	gcc -O2 -Wall -Wextra -std=c99 -Wold-style-definition -Wstrict-prototypes -Wmissing-prototypes -pedantic -o server server.c
+server_debug : server.c
+	gcc -DDEBUG -Wall -Wextra -std=c99 -Wold-style-definition -Wstrict-prototypes -Wmissing-prototypes -pedantic -o server server.c
 send : send.c
 	gcc -O2 -Wall -Wextra -std=c99 -Wold-style-definition -Wstrict-prototypes -Wmissing-prototypes -pedantic -o send send.c
 send_debug : send.c
