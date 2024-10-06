@@ -7,6 +7,7 @@
 
 #define SERVER_PORT 9999    // The port to connect to
 #define SERVER_IP "137.184.10.4"  // The IP address to connect to (localhost for this example)
+//#define SERVER_IP "127.0.0.1"  // The IP address to connect to (localhost for this example)
 #define MESSAGE "Hello from the client!"
 
 int main(int argc, char *argv[]) {

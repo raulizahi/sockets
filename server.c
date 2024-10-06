@@ -3,20 +3,43 @@
 // Creation: Oct 6, 2024
 // Documentation from: UNIX Network Programming, by W. Richard Stevens and iOS's man
 
+/*		Function dialog:
+		TCP Client			TCP Server
+							socket()
+							bind()
+							listen()
+							accept()
+		socket()
+		connect()
+		write()				read()
+							write()
+		read()
+		close()				read()
+							close()
+*/
+
 #include <stdio.h>		// Standard I/O
 #include <stdlib.h>		// C Standard library
 #include <string.h>		// String management
 #include <unistd.h> 	// Unix standard functions
 #include <arpa/inet.h> 	// Networking functions
 
-#define PORT 9999
+// command line
+#define	ARGS_COUNT	1
+
+// argv array indexes
+#define PROGRAM	0 // executable name
+#define PORT	1 // port number
+
+// error return values
+# define ARGC_ERROR	-1
 
 // function prototypes
-int init_server(int port);
-void server_loop(int socket_i);
-void process_request(int socket, char *);
+int 	init_server(in_port_t port_t);
+void 	server_loop(int socket_i);
+void 	process_request(int socket, char *);
 
-int main() {
+int main(int argc, char *argv[]) {	// accept command line arguments
     // Redirect stdout to a log file
 //    freopen("output.log", "a", stdout);
 //    freopen("error.log", "a", stderr);
@@ -25,8 +48,19 @@ int main() {
 //    setbuf(stdout, NULL);
 //    setbuf(stderr, NULL);
 
-    // init the server and get the server file descriptor
-    int socket_i = init_server(PORT);
+	// check command line argument count
+	if (argc!=(ARGS_COUNT+1))
+	{
+		fprintf(stderr,"Usage : %s port_number\n",argv[PROGRAM]);
+		return ARGC_ERROR;
+	} // check argc
+
+	// extract port to use
+	in_port_t	port_t;
+	port_t = (in_port_t)atoi(argv[PORT]);
+
+    // initialize the server and get the server socket descriptor
+    int socket_i = init_server(port_t);
     if (socket_i < 0) {
         fprintf(stderr, "Server initialization failed.\n");
         exit(EXIT_FAILURE);
@@ -44,12 +78,12 @@ int main() {
 }
 
 // Function to init the server
-int init_server(int port) {
-    int socket_id;				// socket descriptor : int socket(int domain, int type, int protocol);
+int init_server(in_port_t port_t) {
+    int socket_i;				// socket descriptor : int socket(int domain, int type, int protocol);
 	int socket_domain_i;
 	int socket_type_i;
 	int socket_protocol_i;
-    struct sockaddr_in address;
+    struct sockaddr_in address_st;
 
 	socket_domain_i = AF_INET;
 	socket_type_i 	= SOCK_STREAM; 	// sequenced, reliable, two-way connection based byte streams. 
@@ -70,12 +104,12 @@ int init_server(int port) {
     }
 
     // Define the server address
-    address.sin_family = AF_INET; // IPv4
-    address.sin_addr.s_addr = INADDR_ANY;  // Accept connections on any IP address
-    address.sin_port = htons(port); // Convert the port number to network byte order
+    address_st.sin_family = AF_INET; // IPv4
+    address_st.sin_addr.s_addr = INADDR_ANY;  // Accept connections on any IP address
+    address_st.sin_port = htons(port_t); // Convert the port number to network byte order
 
     // Bind the socket to the specified IP address and port
-    if (bind(socket_i, (struct sockaddr *)&address, sizeof(address)) < 0) {
+    if (bind(socket_i, (struct sockaddr *)&address_st, sizeof(address_st)) < 0) {
         perror("bind failed");
         return -1;
     }
@@ -91,8 +125,8 @@ int init_server(int port) {
 
 void server_loop(int socket_i) {
     int new_socket;
-    struct sockaddr_in address;
-    int addrlen = sizeof(address);
+    struct sockaddr_in address_st;
+    int addrlen = sizeof(address_st);
 
 #ifdef DEBUG
 		printf("starting server_loop\n");
@@ -103,7 +137,7 @@ void server_loop(int socket_i) {
 	strcpy(response_buffer,"");
     while (strcmp(response_buffer,"done")!=0) {
         // Accept a new connection
-        if ((new_socket = accept(socket_i, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) {
+        if ((new_socket = accept(socket_i, (struct sockaddr *)&address_st, (socklen_t*)&addrlen)) < 0) {
             perror("accept failed");
             continue;
         }
