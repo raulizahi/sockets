@@ -9,5 +9,5 @@ Usage is:
 
 - 'make'
 - in one window: 'server 9999'
-- in another window: 'send Hello'
+- in another window: 'send 127.0.0.1 999 Hello'
 
