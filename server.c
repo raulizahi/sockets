@@ -147,8 +147,9 @@ void server_loop(int socket_i) {
 
         // Process the client's request
         process_request(new_socket,response_buffer);
-
+#ifdef DEBUG
 		printf("got : %s\n",response_buffer);
+#endif
 
         // Close the server socket when done (although this will never be reached in the infinite loop)
         close(new_socket);
