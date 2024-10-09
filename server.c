@@ -18,11 +18,9 @@
 							close()
 */
 
-#include <stdio.h>		// Standard I/O
 #include <stdlib.h>		// C Standard library
 #include <string.h>		// String management
-#include <unistd.h> 	// Unix standard functions
-#include <arpa/inet.h> 	// Networking functions
+#include "init_server.h" // necessary includes for server
 
 // command line
 #define	ARGS_COUNT	1
@@ -35,7 +33,7 @@
 # define ARGC_ERROR	-1
 
 // function prototypes
-int 	init_server(in_port_t port_t);
+int 	init_server(in_port_t port_t); // returns integer socket descriptor
 void 	server_loop(int socket_i);
 void 	process_request(int socket, char *);
 
@@ -78,6 +76,7 @@ int main(int argc, char *argv[]) {	// accept command line arguments
 }
 
 // Function to init the server
+#if 0
 int init_server(in_port_t port_t) {
     int socket_i;				// socket descriptor : int socket(int domain, int type, int protocol);
 	int socket_domain_i;
@@ -91,14 +90,14 @@ int init_server(in_port_t port_t) {
 
     // Create a socket: AF_INET = IPv4, SOCK_STREAM = TCP, 0 = Default protocol
     if ((socket_i = socket(socket_domain_i, socket_type_i, 0)) == 0) {
-        perror("socket failed");
+        fprintf(stderr,"socket failed\n");
         return -1;
     }
 
     // Set SO_REUSEADDR to reuse the port
 	int opt=1;
     if (setsockopt(socket_i, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1) {
-        perror("setsockopt failed");
+        fprintf(stderr,"setsockopt failed\n");
         close(socket_i);
         exit(EXIT_FAILURE);
     }
@@ -110,18 +109,19 @@ int init_server(in_port_t port_t) {
 
     // Bind the socket to the specified IP address and port
     if (bind(socket_i, (struct sockaddr *)&address_st, sizeof(address_st)) < 0) {
-        perror("bind failed");
+        fprintf(stderr,"bind failed\n");
         return -1;
     }
 
     // Put the server socket in a passive mode to listen for incoming connections
     if (listen(socket_i, 3) < 0) {
-        perror("listen");
+        fprintf(stderr,"listen\n");
         return -1;
     }
 
     return socket_i;
 }
+#endif
 
 void server_loop(int socket_i) {
     int new_socket;
@@ -138,7 +138,7 @@ void server_loop(int socket_i) {
     while (strcmp(response_buffer,"done")!=0) {
         // Accept a new connection
         if ((new_socket = accept(socket_i, (struct sockaddr *)&address_st, (socklen_t*)&addrlen)) < 0) {
-            perror("accept failed");
+            fprintf(stderr,"accept failed\n");
             continue;
         }
 #ifdef DEBUG
@@ -177,7 +177,7 @@ void process_request(int socket,char *response_s) {
     // Read data from the client
     ssize_t valread = read(socket, buffer, sizeof(buffer) - 1);
 
-	printf("read %d characters : %s\n",valread,buffer);
+	printf("read %zd characters : %s\n",valread,buffer);
 	strcpy(response_s,buffer);
 
 #if 0
