@@ -79,6 +79,11 @@ int main(int argc, char *argv[]) {
 
     printf("Message sent to server: %s\n", message_s);
 
+	// read from socket
+	char buffer[1024] = {0}; // Buffer to hold incoming data
+	ssize_t valread = read(sock, buffer, sizeof(buffer) - 1);
+	printf("read %zd characters from server : %s\n",valread,buffer);
+
     // Close the socket
     close(sock);
 

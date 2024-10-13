@@ -178,9 +178,19 @@ void process_request(int socket,char *response_s) {
     ssize_t valread = read(socket, buffer, sizeof(buffer) - 1);
 
 	printf("read %zd characters : %s\n",valread,buffer);
-	strcpy(response_s,buffer);
+	// printf, respond with something
+	char message_s[1024];
+	strcpy(message_s,"this is the server's response");
+
+   if (send(socket, message_s, strlen(message_s), 0) == -1) {
+		perror("Send failed");
+		close(socket);
+		exit(EXIT_FAILURE);
+    }
 
 #if 0
+	strcpy(response_s,buffer);
+
     // Check if the request is an OPTIONS request (CORS preflight)
     if (strstr(buffer, "OPTIONS") != NULL) {
         // Respond with the pre-defined OPTIONS response
