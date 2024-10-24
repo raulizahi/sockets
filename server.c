@@ -59,7 +59,9 @@ int main(int argc, char *argv[]) {	// accept command line arguments
 
     // initialize the server and get the server socket descriptor
     int socket_i = init_server(port_t);
+#ifdef DEBUG
 	printf("got socket_i = %d\n",socket_i);
+#endif
     if (socket_i < 0) {
         fprintf(stderr, "Server initialization failed.\n");
         exit(EXIT_FAILURE);
@@ -136,7 +138,9 @@ void server_loop(int socket_i) {
     // Main loop to handle incoming requests, runs infinite
 	char response_buffer[1024];
 	strcpy(response_buffer,"");
+#ifdef DEBUG
 	printf("accept passed\n");
+#endif
     while (strcmp(response_buffer,"done")!=0) {
 		// Accept a new connection
 		if ((new_socket = accept(socket_i, (struct sockaddr *)&address_st, (socklen_t*)&addrlen)) < 0) {
@@ -149,7 +153,7 @@ void server_loop(int socket_i) {
         // Process the client's request
         process_request(new_socket,response_buffer);
 #ifdef DEBUG
-		printf("got : %s\n",response_buffer);
+		printf("got : >%s<\n",response_buffer);
 #endif
 
         // Close the server socket when done (although this will never be reached in the infinite loop)
@@ -179,6 +183,7 @@ void process_request(int socket,char *response_s) {
     ssize_t valread = read(socket, buffer, sizeof(buffer) - 1);
 
 	printf("read %zd characters : %s\n",valread,buffer);
+	strcpy(response_s,buffer);
 	// printf, respond with something
 	char message_s[1024];
 	strcpy(message_s,"this is the server's response");
@@ -190,7 +195,6 @@ void process_request(int socket,char *response_s) {
     }
 
 #if 0
-	strcpy(response_s,buffer);
 
     // Check if the request is an OPTIONS request (CORS preflight)
     if (strstr(buffer, "OPTIONS") != NULL) {
