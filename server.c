@@ -59,6 +59,7 @@ int main(int argc, char *argv[]) {	// accept command line arguments
 
     // initialize the server and get the server socket descriptor
     int socket_i = init_server(port_t);
+	printf("got socket_i = %d\n",socket_i);
     if (socket_i < 0) {
         fprintf(stderr, "Server initialization failed.\n");
         exit(EXIT_FAILURE);
@@ -135,16 +136,16 @@ void server_loop(int socket_i) {
     // Main loop to handle incoming requests, runs infinite
 	char response_buffer[1024];
 	strcpy(response_buffer,"");
+	printf("accept passed\n");
     while (strcmp(response_buffer,"done")!=0) {
-        // Accept a new connection
-        if ((new_socket = accept(socket_i, (struct sockaddr *)&address_st, (socklen_t*)&addrlen)) < 0) {
-            fprintf(stderr,"accept failed\n");
-            continue;
-        }
+		// Accept a new connection
+		if ((new_socket = accept(socket_i, (struct sockaddr *)&address_st, (socklen_t*)&addrlen)) < 0) {
+			fprintf(stderr,"accept failed\n");
+			return;
+		}
 #ifdef DEBUG
 		printf("received data\n");
 #endif
-
         // Process the client's request
         process_request(new_socket,response_buffer);
 #ifdef DEBUG
