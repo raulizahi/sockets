@@ -1,7 +1,7 @@
 #include "init_server.h"
 // function prototype
 int init_server(in_port_t port_t);
-void get_socket_data_s(int,char *);
+int get_socket_data_s(int,char *);
 // Function to init the server
 int init_server(in_port_t port_t) 
 {
@@ -53,7 +53,7 @@ int init_server(in_port_t port_t)
 
     return socket_i;
 }
-void get_socket_data_s(int socket_i, char *data_s)
+int get_socket_data_s(int socket_i, char *data_s)
 {
 	char buffer_s[1024] = {0};	// data to be returned
 	int new_socket;
@@ -70,4 +70,5 @@ void get_socket_data_s(int socket_i, char *data_s)
 	printf("read %zd characters : %s\n",valread,buffer_s);
 #endif
 	strcpy(data_s,buffer_s);
+	return new_socket;
 }
