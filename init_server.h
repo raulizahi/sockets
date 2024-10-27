@@ -7,3 +7,6 @@
 #define SERVER_ERROR_OPT	-2
 #define SERVER_ERROR_BIND	-3
 #define SERVER_ERROR_LISTEN	-4
+
+#define COMMAND_OK			0
+#define COMMAND_ERROR		-1
