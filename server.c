@@ -127,7 +127,7 @@ int init_server(in_port_t port_t) {
 #endif
 
 void server_loop(int socket_i) {
-    int new_socket;
+    int new_socket;	// connected descriptor: unique per client connected to server. UNIX Network Programming, by Stevens, page 14
     struct sockaddr_in address_st;
     int addrlen = sizeof(address_st);
 
