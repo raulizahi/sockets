@@ -127,7 +127,7 @@ int init_server(in_port_t port_t) {
 #endif
 
 void server_loop(int socket_i) {
-    int new_socket;	// connected descriptor: unique per client connected to server. UNIX Network Programming, by Stevens, page 14
+    int connfd_i;	// connected descriptor: unique per client connected to server. UNIX Network Programming, by Stevens, page 14
     struct sockaddr_in address_st;
     int addrlen = sizeof(address_st);
 
@@ -143,7 +143,7 @@ void server_loop(int socket_i) {
 #endif
     while (strcmp(response_buffer,"done")!=0) {
 		// Accept a new connection
-		if ((new_socket = accept(socket_i, (struct sockaddr *)&address_st, (socklen_t*)&addrlen)) < 0) {
+		if ((connfd_i = accept(socket_i, (struct sockaddr *)&address_st, (socklen_t*)&addrlen)) < 0) {
 			fprintf(stderr,"accept failed\n");
 			return;
 		}
@@ -151,13 +151,13 @@ void server_loop(int socket_i) {
 		printf("received data\n");
 #endif
         // Process the client's request
-        process_request(new_socket,response_buffer);
+        process_request(connfd_i,response_buffer);
 #ifdef DEBUG
 		printf("got : >%s<\n",response_buffer);
 #endif
 
         // Close the server socket when done (although this will never be reached in the infinite loop)
-        close(new_socket);
+        close(connfd_i);
     }
 }
 
