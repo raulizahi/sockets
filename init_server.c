@@ -76,7 +76,7 @@ int get_socket_data_i(int socket_i, int *new_socket_i,char *data_s)
 	char user1_s[256],user2_s[256],user3_s[256]; 	// temporary locations to hold strings in command
     sscanf(buffer_s,"%c %d %s %s %s",&clc_c,&word_count_i,user1_s,user2_s,user3_s);
  #ifdef DEBUG
-    printf("get_socket_data_s got %s -> >%c< %d >%s< >%s< >%s<\n",socket_data_s,clc_c,word_count_i,user1_s,user2_s,user3_s);
+    printf("get_socket_data_s got %s -> >%c< %d >%s< >%s< >%s<\n",buffer_s,clc_c,word_count_i,user1_s,user2_s,user3_s);
  #endif
  	if ((clc_c=='n') || (clc_c=='q') || (clc_c=='r')) // only accept a new request, a repeat, or quit
 	{
